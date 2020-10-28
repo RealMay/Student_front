@@ -4,9 +4,15 @@ const app = new Vue({
         students:[],
         pageStudents:[],
         baseURL:"http://172.28.35.33:8000/",
+        inputStr:"",
+        dialogVisible:false,
+
+
+        //分页相关的变量
         total:0,//数据总行数
         currentpage:1, //当前所在的页
-        pagesize:10   //每页显示多少行
+        pagesize:10 ,  //每页显示多少行
+
     },
     mounted() {
         //自动加载数据
@@ -45,6 +51,10 @@ const app = new Vue({
                 console.log(err)
             })
         },
+        getAllStudents(){
+            this.inputStr = "";
+            this.getStudents();
+        },
         getPageStudents(){
             //清空pageStudents的值
             this.pageStudents = [];
@@ -55,6 +65,47 @@ const app = new Vue({
                 //判断是否达到一页的要求
                 if(this.pageStudents.length === this.pagesize) break;
             }
+        },
+        //实现学生信息查询
+        queryStudent(){
+            //使用Ajax请求，post,传递inputStr
+            let that = this
+            axios
+            .post(
+                that.baseURL + "students/query/",
+                {   
+                    //把输入的inputStr传给后台
+                    inputstr:that.inputStr
+                }
+            )
+            .then(function(res){
+                if(res.data.code === 1){
+                    //把数据给students
+                    that.students = res.data.data;
+                    //获取返回记录的总行数
+                    that.total = res.data.data.length;
+                    //获取当前页的数据
+                    that.getPageStudents();
+                    //提示
+                    that.$message({
+                        message: '查询数据加载成功',
+                        type: 'success'
+                      });
+                }else{
+                    //失败的提示
+                    that.$message.error(res.data.msg);
+                }
+            }
+            )
+            .catch(function(err){
+                console.log(err)
+                that.$message.error("获取后端查询接口异常");
+            })
+
+        },
+        //添加学生时打开表单
+        addStudent(){
+            this.dialogVisible = true
         },
         //分页时修改每页的行数
         handleSizeChange(size){
