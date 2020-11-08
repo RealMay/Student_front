@@ -3,7 +3,7 @@ const app = new Vue({
     data: {
         students: [],
         pageStudents: [],
-        baseURL: "http://172.28.225.132:8000/",
+        baseURL: "http://192.168.1.101:8000/",
         inputStr: "",
         dialogVisible: false,
         dialogTittle:"",
@@ -16,6 +16,31 @@ const app = new Vue({
             email: "",
             address: "",
             image: "",
+        },
+        rules:{
+            sno:[
+                {required:true, message:"学号不能为空", trigger:"blur"},
+                {pattern:/^[9][5]\d{3}$/, message:"学号必须是95开头的五位数字", trigger:"blur"}
+            ],
+            name:[
+                {required:true, message:"姓名不能为空", trigger:"blur"},
+                {pattern:/^[\u4e00-\u9fa5]{2,5}$/, message:"姓名只能2-5中文", trigger:"blur"}
+            ],
+            gender:[
+                {required:true, message:"性别不能为空", trigger:"change"},
+            ],
+            birthday:[
+                {type:"date",required:true, message:"出生日期不能为空", trigger:"change"},
+            ],
+            mobile:[
+                {required:true, message:"手机号不能为空", trigger:"blur"},
+            ],
+            email:[
+                {required:true, message:"学号不能为空", trigger:"blur"},
+            ],
+            address:[
+                {required:true, message:"地址不能为空", trigger:"blur"},
+            ],
         },
         isEdit: false, //标识是否修改
         isView: false, //表示是否查看
