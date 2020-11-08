@@ -3,7 +3,7 @@ const app = new Vue({
     data: {
         students: [],
         pageStudents: [],
-        baseURL: "http://172.28.35.33:8000/",
+        baseURL: "http://172.28.225.132:8000/",
         inputStr: "",
         dialogVisible: false,
         dialogTittle:"",
