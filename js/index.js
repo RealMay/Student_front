@@ -1,28 +1,84 @@
 const app = new Vue({
     el: '#app',
-    data: {
-        students: [],
-        pageStudents: [],
-        baseURL: "http://172.28.35.33:8000/",
-        inputStr: "",
-        dialogVisible: false,
-        dialogTittle:"",
-        studentForm: {
-            sno: "",
-            name: "",
-            gender: "",
-            birthday: "",
-            mobile: "",
-            email: "",
-            address: "",
-            image: "",
-        },
-        isEdit: false, //标识是否修改
-        isView: false, //表示是否查看
-        //分页相关的变量
-        total: 0,//数据总行数
-        currentpage: 1, //当前所在的页
-        pagesize: 10,  //每页显示多少行
+    data() {
+        //校验学号是否存在
+        const rulesSno = (rule, value, callback) => {
+            //使用axios校验
+            axios.post(
+                this.baseURL + 'sno/check/',
+                {
+                    sno: value,
+                }
+            )
+                .then((res) => {
+                    if (res.data.code === 1) {
+                        if (res.data.exist) {
+                            callback(new Error("学号已存在！"));
+                        } else {
+                            callback();
+                        }
+                    } else {
+                        callback(new Error("后端异常"))
+                    }
+
+                })
+                .catch((err) => {
+                    //请求失败后台打印
+                    console.log(err);
+                });
+        }
+        return {
+            students: [],
+            pageStudents: [],
+            baseURL: "http://172.28.35.33:8000/",
+            inputStr: "",
+            dialogVisible: false,
+            dialogTittle: "",
+            isEdit: false, //标识是否修改
+            isView: false, //表示是否查看
+            //分页相关的变量
+            total: 0,//数据总行数
+            currentpage: 1, //当前所在的页
+            pagesize: 10,  //每页显示多少行
+            studentForm: {
+                sno: "",
+                name: "",
+                gender: "",
+                birthday: "",
+                mobile: "",
+                email: "",
+                address: "",
+                image: "",
+            },
+            rules: {
+                sno: [
+                    { required: true, message: '学号不允许为空', trigger: 'blur' },
+                    { pattern: /^[9][5]\d{3}$/, message: '学号必须以95开头的5个数字', trigger: 'blur' },
+                    { validator: rulesSno, trigger: 'blur' },
+                ],
+                name: [
+                    { required: true, message: '姓名不允许为空', triggler: 'blur' },
+                    { pattern: /^[\u4e00-\u9fa5]{2,5}$/, message: '姓名必须2-5汉字', trigger: 'blur' },
+                ],
+                gender: [
+                    { required: true, message: '性别不允许为空', trigger: 'change' },
+                ],
+                birthday: [
+                    { type: 'date', required: true, message: '日期不允许为空', trigger: 'change' },
+                ],
+                mobile: [
+                    { required: true, message: '手机号码不允许为空', trigger: 'blur' },
+                    { pattern: /^[1][35789]\d{9}$/, message: '手机号码要符合规范', trigger: 'blur' },
+                ],
+                email: [
+                    { required: true, message: '邮箱不允许为空', trigger: 'blur' },
+                    { pattern: /^[0-9a-zA-Z_.-]+[@][0-9a-zA-Z_.-]+([.][a-zA-Z]+){1,2}$/, message: '邮箱要符合规范', trigger: 'blur' },
+                ],
+                address: [
+                    { required: true, message: '地址不允许为空', trigger: 'blur' },
+                ],
+            }
+        }
 
     },
     mounted() {
@@ -137,9 +193,21 @@ const app = new Vue({
             // 深拷贝方法
             this.studentForm = JSON.parse(JSON.stringify(row))
         },
+        //提交和修改学生信息
+        submitStudentForm(formName) {
+            this.$refs[formName].validate((valid) => {
+                if (valid) {
+                    alert('submit!');
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
+        },
         //关闭弹出框的表单
-        closeDialogForm() {
+        closeDialogForm(formName) {
             //清空
+            this.$refs[formName].resetFields();
             this.studentForm.sno = "";
             this.studentForm.name = "";
             this.studentForm.gender = "";
@@ -166,4 +234,5 @@ const app = new Vue({
             this.getPageStudents();
         }
     },
+
 })
